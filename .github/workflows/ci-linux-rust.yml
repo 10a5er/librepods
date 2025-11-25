@@ -1,4 +1,4 @@
-name: Linux Build & Release
+name: Linux aarch64 Build & Release
 
 on:
   push:
@@ -13,34 +13,25 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Native ARM runner (aarch64)
+    runs-on: ubuntu-24.04-arm
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
+          set -eux
           sudo apt-get update
           sudo apt-get install -y \
             pkg-config \
             libdbus-1-dev \
             libpulse-dev \
             appstream \
-            just \
-            libfuse2 \
-            gcc-aarch64-linux-gnu \
-            libc6-dev-arm64-cross
+            just
 
-      - name: Install AppImage tools
-        run: |
-          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O /usr/local/bin/appimagetool
-          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O /usr/local/bin/linuxdeploy
-          chmod +x /usr/local/bin/{appimagetool,linuxdeploy}
-
-      - name: Install Rust
+      - name: Install Rust (stable)
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-unknown-linux-gnu
 
       - name: Cache Cargo
         uses: actions/cache@v4
@@ -49,48 +40,15 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             linux-rust/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('linux-rust/Cargo.lock') }}
+          key: ${{ runner.os }}-arm64-cargo-${{ hashFiles('linux-rust/Cargo.lock') }}
 
-      - name: Build AppImage and Binaries
+      - name: Build aarch64 binary
         working-directory: linux-rust
         run: |
-          # x86_64 build (native on runner)
+          set -eux
           cargo build --release --verbose
-
-          # Run justfile to create AppImage (still x86_64)
-          just
-
-          # aarch64 cross-compile
-          RUSTFLAGS="-C linker=aarch64-linux-gnu-gcc" \
-            cargo build --release --verbose --target aarch64-unknown-linux-gnu
-
-          # Collect artifacts
           mkdir -p dist
-
-          # x86_64 binary
-          cp target/release/librepods dist/librepods-x86_64
-
-          # aarch64 binary
-          cp target/aarch64-unknown-linux-gnu/release/librepods dist/librepods-aarch64
-
-          # AppImage produced by just; normalize name
-          if [ -f dist/LibrePods-x86_64.AppImage ]; then
-            mv dist/LibrePods-x86_64.AppImage dist/librepods-x86_64.AppImage
-          fi
-
-      - name: Upload AppImage artifact
-        if: "!startsWith(github.ref, 'refs/tags/linux-v')"
-        uses: actions/upload-artifact@v4
-        with:
-          name: librepods-x86_64.AppImage
-          path: linux-rust/dist/librepods-x86_64.AppImage
-
-      - name: Upload x86_64 binary artifact
-        if: "!startsWith(github.ref, 'refs/tags/linux-v')"
-        uses: actions/upload-artifact@v4
-        with:
-          name: librepods-x86_64
-          path: linux-rust/dist/librepods-x86_64
+          cp target/release/librepods dist/librepods-aarch64
 
       - name: Upload aarch64 binary artifact
         if: "!startsWith(github.ref, 'refs/tags/linux-v')"
@@ -99,24 +57,12 @@ jobs:
           name: librepods-aarch64
           path: linux-rust/dist/librepods-aarch64
 
-      - name: Create tarball for Flatpak
-        if: startsWith(github.ref, 'refs/tags/linux-v')
-        working-directory: linux-rust
-        run: |
-          VERSION="${GITHUB_REF_NAME#linux-v}"
-          just tarball "${VERSION}"
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "TAR_PATH=linux-rust/dist/librepods-v${VERSION}-source.tar.gz" >> $GITHUB_ENV
-
-      - name: Create GitHub Release (AppImage + binaries + source)
+      - name: Create GitHub Release (aarch64 binary)
         if: startsWith(github.ref, 'refs/tags/linux-v')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            linux-rust/dist/librepods-v${{ env.VERSION }}-source.tar.gz
-            linux-rust/dist/librepods-x86_64.AppImage
-            linux-rust/dist/librepods-x86_64
             linux-rust/dist/librepods-aarch64
           generate_release_notes: true
         env:
