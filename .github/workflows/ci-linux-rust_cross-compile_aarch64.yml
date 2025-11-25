@@ -21,7 +21,15 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libdbus-1-dev libpulse-dev appstream just libfuse2
+          sudo apt-get install -y \
+            pkg-config \
+            libdbus-1-dev \
+            libpulse-dev \
+            appstream \
+            just \
+            libfuse2 \
+            gcc-aarch64-linux-gnu \
+            libc6-dev-arm64-cross
 
       - name: Install AppImage tools
         run: |
@@ -31,6 +39,8 @@ jobs:
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-unknown-linux-gnu
 
       - name: Cache Cargo
         uses: actions/cache@v4
@@ -41,14 +51,32 @@ jobs:
             linux-rust/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('linux-rust/Cargo.lock') }}
 
-      - name: Build AppImage and Binary
+      - name: Build AppImage and Binaries
         working-directory: linux-rust
         run: |
+          # x86_64 build (native on runner)
           cargo build --release --verbose
+
+          # Run justfile to create AppImage (still x86_64)
           just
+
+          # aarch64 cross-compile
+          RUSTFLAGS="-C linker=aarch64-linux-gnu-gcc" \
+            cargo build --release --verbose --target aarch64-unknown-linux-gnu
+
+          # Collect artifacts
           mkdir -p dist
-          cp target/release/librepods dist/librepods
-          mv dist/LibrePods-x86_64.AppImage dist/librepods-x86_64.AppImage
+
+          # x86_64 binary
+          cp target/release/librepods dist/librepods-x86_64
+
+          # aarch64 binary
+          cp target/aarch64-unknown-linux-gnu/release/librepods dist/librepods-aarch64
+
+          # AppImage produced by just; normalize name
+          if [ -f dist/LibrePods-x86_64.AppImage ]; then
+            mv dist/LibrePods-x86_64.AppImage dist/librepods-x86_64.AppImage
+          fi
 
       - name: Upload AppImage artifact
         if: "!startsWith(github.ref, 'refs/tags/linux-v')"
@@ -57,12 +85,19 @@ jobs:
           name: librepods-x86_64.AppImage
           path: linux-rust/dist/librepods-x86_64.AppImage
 
-      - name: Upload binary artifact
+      - name: Upload x86_64 binary artifact
         if: "!startsWith(github.ref, 'refs/tags/linux-v')"
         uses: actions/upload-artifact@v4
         with:
-          name: librepods
-          path: linux-rust/dist/librepods
+          name: librepods-x86_64
+          path: linux-rust/dist/librepods-x86_64
+
+      - name: Upload aarch64 binary artifact
+        if: "!startsWith(github.ref, 'refs/tags/linux-v')"
+        uses: actions/upload-artifact@v4
+        with:
+          name: librepods-aarch64
+          path: linux-rust/dist/librepods-aarch64
 
       - name: Create tarball for Flatpak
         if: startsWith(github.ref, 'refs/tags/linux-v')
@@ -73,7 +108,7 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "TAR_PATH=linux-rust/dist/librepods-v${VERSION}-source.tar.gz" >> $GITHUB_ENV
 
-      - name: Create GitHub Release (AppImage + binary + source)
+      - name: Create GitHub Release (AppImage + binaries + source)
         if: startsWith(github.ref, 'refs/tags/linux-v')
         uses: softprops/action-gh-release@v2
         with:
@@ -81,7 +116,8 @@ jobs:
           files: |
             linux-rust/dist/librepods-v${{ env.VERSION }}-source.tar.gz
             linux-rust/dist/librepods-x86_64.AppImage
-            linux-rust/dist/librepods
+            linux-rust/dist/librepods-x86_64
+            linux-rust/dist/librepods-aarch64
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
