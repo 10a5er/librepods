@@ -1,4 +1,7 @@
-![LibrePods Banner](/imgs/banner.png)
+>[!IMPORTANT]
+Development paused due to lack of time until 17th May 2026 (JEE Advanced). PRs and issues might not be responded to until then.
+
+![LibrePods Banner](./imgs/banner.png)
 
 ## What is LibrePods?
 
@@ -36,7 +39,7 @@ Most features should work with any AirPods. Currently, I've only got AirPods Pro
 ## Platform Support
 
 ### Linux
-for the old version see the [Linux README](/linux/README.md). (doesn't have many features, maintainer didn't have time to work on it)
+for the old version see the [Linux README](./linux/README.md). (doesn't have many features, maintainer didn't have time to work on it)
 
 new version in development ([#241](https://github.com/kavishdevar/librepods/pull/241))
 
@@ -46,13 +49,13 @@ new version in development ([#241](https://github.com/kavishdevar/librepods/pull
 
 #### Screenshots
 
-|                                                                                        |                                                   |                                                                             |
-| -------------------------------------------------------------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------- |
-| ![Settings 1](/android/imgs/settings-1.png)                                            | ![Settings 2](/android/imgs/settings-2.png)       | ![Debug Screen](/android/imgs/debug.png)                                    |
-| ![Battery Notification and QS Tile for NC Mode](/android/imgs/notification-and-qs.png) | ![Popup](/android/imgs/popup.png)                 | ![Head Tracking and Gestures](/android/imgs/head-tracking-and-gestures.png) |
-| ![Long Press Configuration](/android/imgs/long-press.png)                              | ![Widget](/android/imgs/widget.png)               | ![Customizations 1](/android/imgs/customizations-1.png)                     |
-| ![Customizations 2](/android/imgs/customizations-2.png)                                | ![accessibility](/android/imgs/accessibility.png) | ![transparency](/android/imgs/transparency.png)                             |
-| ![hearing-aid](/android/imgs/hearing-aid.png)                                          | ![hearing-test](/android/imgs/hearing-test.png)   | ![hearing-aid-adjustments](/android/imgs/hearing-aid-adjustments.png)       |
+|                                                                                         |                                                    |                                                                              |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------- |
+| ![Settings 1](./android/imgs/settings-1.png)                                            | ![Settings 2](./android/imgs/settings-2.png)       | ![Debug Screen](./android/imgs/debug.png)                                    |
+| ![Battery Notification and QS Tile for NC Mode](./android/imgs/notification-and-qs.png) | ![Popup](./android/imgs/popup.png)                 | ![Head Tracking and Gestures](./android/imgs/head-tracking-and-gestures.png) |
+| ![Long Press Configuration](./android/imgs/long-press.png)                              | ![Widget](./android/imgs/widget.png)               | ![Customizations 1](./android/imgs/customizations-1.png)                     |
+| ![Customizations 2](./android/imgs/customizations-2.png)                                | ![accessibility](./android/imgs/accessibility.png) | ![transparency](./android/imgs/transparency.png)                             |
+| ![hearing-aid](./android/imgs/hearing-aid.png)                                          | ![hearing-test](./android/imgs/hearing-test.png)   | ![hearing-aid-adjustments](./android/imgs/hearing-aid-adjustments.png)       |
 
 
 here's a very unprofessional demo video
@@ -64,7 +67,7 @@ https://github.com/user-attachments/assets/43911243-0576-4093-8c55-89c1db5ea533
 If you are using ColorOS/OxygenOS 16, you don't need root except for customizing transparency mode, setting up hearing aid, and use Bluetooth Multipoint. Changing ANC, conversational awareness, ear detection, and other customizations will work without root. For everyone else:
 
 > [!CAUTION]
-> **You must have a rooted device with Xposed to use LibrePods on Android.** This is due to a [bug in the Android Bluetooth stack](https://issuetracker.google.com/issues/371713238). Please upvote the issue by clicking the '+1' icon on the IssueTracker page. I don't know a fix for Android versions <13 either. So, this needs a phone running A13+.
+> **You must have a rooted device with Xposed to use LibrePods on Android.** This is due to a [bug in the Android Bluetooth stack](https://issuetracker.google.com/issues/371713238). Please upvote the issue by clicking the '+1' icon on the IssueTracker page. DO NOT leave a +1 comment - use the +1 button in the top right of the page next to the "Hotlists" field.  Leaving +1 comment spam makes it impossible for developers to engage in the necessary technical discussion to implement this fix, and will disincentivize the responsible Google developers from engaging.  I don't know a fix for Android versions <13 either. So, this needs a phone running A13+.
 > 
 > There are **no exceptions** to the root requirement until Google/your OEM figures out a fix.
 
@@ -111,7 +114,7 @@ A huge thank you to everyone supporting the project!
 - @rithvikvibhu and folks over at lagrangepoint for helping with the hearing aid feature ([gist](https://gist.github.com/rithvikvibhu/45e24bbe5ade30125f152383daf07016))
 - @devnoname120 for helping with the first root patch
 - @timgromeyer for making the first version of the linux app
-- @hackclub for hosting [High Seas](https://highseas.hackclub.com) and [Low Skies](low-skies.hackclub.com)!
+- @hackclub for hosting [High Seas](https://highseas.hackclub.com) and [Low Skies](https://low-skies.hackclub.com)!
 
 ## Star History
 
